@@ -1,0 +1,67 @@
+----------------------
+Traffic.py
+----------------------
+
+Features:
+
+1. SSE
+After doing some research, I have found that it is quite connivence to achieve this feature by using Gevent, WSGI and Flask. I build a web application with flask and set up the WSGI server to run that application with gevent library. 
+
+2. Concurrent Connections
+Since I set up a WSGI Server by gevent, every new connection accepted on the server will be handled by a new Greenlet. So the server is capable of handling concurrent connections.
+
+ 
+3. Statistic data API
+The server provide a API( /data_streaming ) for streaming statistic data to client side. the data is in JSON format. It includes data part and threshold part. The client will display the data differently if the data larger than its limit value.
+
+    Format of retured JSON data: 
+    { 'stat_data': { 'server1': 100, 'server2': 200, ... },
+      'threshold': { 'server1': 1000, 'server2': 1300, ... }
+    }
+
+4. Reading data
+In order to keep reading data from file and running the server synchronously I use a independent thread for the server and then start to stream data after user press Enter. For the real server log I will open the log file and read the last line each time, but for this test dataset I just read every line of the file each 2 seconds by using sleep function.
+
+5. Traffic Spike
+Since each server have different jobs to do and also different performance I think they might have different threshold. So I use a dict to store threshold for each server. For the server not in that dict it will have a default threshold.
+
+6. Email Alert
+Before you can use this function you need to set all the email information, such as smtp server, port, username, password, etc..  After you set all the information, you need to uncomment the code of sending email( at line 136 ), then you can use it.
+
+
+----------------------
+index.html
+----------------------
+
+It have a table to show the traffic data for each server. The background color of traffic data is used to mark if the server is overloaded.
+There are three levels: Red color: Critical ( > threshold ), Orange Color: Warning ( > 0.75*threshold ), No color: normal ( < 0.75*threshold ).
+
+The data is received from sever side by setting up a SSE connection.
+
+All the css and javascript code is in this html file. 
+
+
+
+----------------------
+How to run it
+----------------------
+0. Installed gevent 1.0 and flask library in python.
+
+1. Unzip the file into the same directory.
+Directory structure:
+
+    Dir — traffic.py
+           |
+          statictraffic
+           |
+          templates - index.html
+
+2. Run python script with python2.6 or python2.7 and press Enter to start streaming data. 
+
+example: 
+$ python traffic.py statictraffic 
+Please open a web browser to http://127.0.0.1:5000
+Press Enter to start streaming data.
+Streaming data...
+
+3. Open browsers to http://127.0.0.1:5000

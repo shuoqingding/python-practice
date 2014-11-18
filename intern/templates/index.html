@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <style type="text/css">
+      #container{ padding: 15px; }
+      #server_table{ padding-top: 10px; }
+      #server_table th{ width: 80px; }
+      #server_table td{ text-align: center; }
+      .critical{ background-color: red; }
+      .warning{ background-color: orange; }
+    </style>
+  </head>
+
+  <body>
+    <div id='container'>
+        <div>
+          <span><b>Update at:</b></span>
+          <span id='update_time'></span>
+        </div>
+        <div id='server_table'>Loading..</div>
+    </div>
+
+  <script type="text/javascript">
+
+
+    var evtSrc = new EventSource("/data_streaming");
+    evtSrc.onmessage = function(e) {
+        var data = eval( "(" + e.data + ")" );
+        var tb = document.getElementById( "server_table" );
+        tb.innerHTML = construct_table( data );
+
+        var up_time = document.getElementById( "update_time" );
+        var t = new Date();
+        up_time.innerHTML = t.toLocaleString();
+    }
+
+    function construct_table( data ){
+
+        stat_data = data['stat_data']
+        threshold = data['threshold']
+
+        var empty = true;
+
+        var ths = "";
+        var tds = "";
+        var class_type = "";
+        var thres = 1500;
+
+        for( server in stat_data ){
+            ths += "<th>"+server+"</th>";
+            if( threshold[server] != undefined )
+                thres = threshold[server];
+
+            if( stat_data[server] > thres ){
+                class_type = "class='critical'";
+            }
+            else if( stat_data[server] > thres*0.75 ){
+                class_type = "class='warning'";
+            }
+            else
+                class_type = "";
+            tds += "<td "+class_type+">"+stat_data[server]+"</td>";
+            empty = false;
+        }
+
+        if( empty ){
+            return "Server statistic data is not available, please check the server"
+        }
+
+        var table = "<table border='1'>"+
+                      "<tr>"+ths+"</tr>"+
+                      "<tr>"+tds+"</tr>"+
+                    "</table>";
+
+        return table;
+    }
+
+
+  </script>
+  </body>
+
+</html>
