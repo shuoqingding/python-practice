@@ -85,4 +85,9 @@ class FirstLogic( object ):
 
 if __name__ == "__main__":
     logic = FirstLogic()
-    print( logic.backward_chaining( logic.goal ) )
+    r = logic.backward_chaining( logic.goal )
+    with open( "output.txt", "w" ) as f:
+        if r:
+            f.write( "TRUE" )
+        else:
+            f.write( "FALSE" )
