@@ -57,6 +57,9 @@ class FirstLogic( object ):
         return True, theta
 
     def subst( self, predicate, theta ):
+        if theta is None:
+            return
+
         import copy
         p = copy.deepcopy( predicate )
 
@@ -66,20 +69,49 @@ class FirstLogic( object ):
 
         return p
 
+    def list_all_thetas( self, goal ):
+        for s in self.statements:
+            r, theta = self.isPredicateEqual( goal, s )
+            if r:
+                yield theta
+
+        for rule in self.rules:
+            r, theta = self.isPredicateEqual( goal, rule['right'] )
+            if r:
+                yield theta
+
+    def backward_chaining_multigoals( self, goals ):
+        for theta in self.list_all_thetas( goals[0] ):
+            result = True
+
+            for goal in goals:
+                new_goal = self.subst( goal, theta )
+                r = self.backward_chaining( new_goal )
+                result &= r
+
+            if result:
+                return True
+
+        return False
+
     def backward_chaining( self, goal ):
         for s in self.statements:
-            if self.isPredicateEqual( goal, s )[0]:
+            r, theta = self.isPredicateEqual( goal, s )
+            if r:
                 return True
+
         for rule in self.rules:
             r, theta = self.isPredicateEqual( goal, rule['right'] )
             if not r:
                 continue
 
-            result = True
+            new_goals = []
             for p in rule['left']:
-                predicate = self.subst( p, theta )
-                result &= self.backward_chaining( predicate )
-            return result
+                new_goals.append( self.subst( p, theta ) )
+
+            r = self.backward_chaining_multigoals( new_goals )
+            if r:
+                return True
 
         return False
 

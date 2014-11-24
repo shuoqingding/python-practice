@@ -1,11 +1,8 @@
 Diagnosis(John,Infected)
-9
+6
 Works(x,Aidagency)&HasTraveled(x,Timbuktu)=>Diagnosis(x,Infected)
 Diagnosis(x,Fever)=>HasSymptom(John,Fever)
 HasSymptom(x,Fever)&HasTraveled(x,Timbuktu)=>Works(Alice,Aidagency)
-HasSymptom(x,Fever)&HasTraveled(x,Timbuktu)=>Works(Alice1,Aidagency)
 Works(John,Aidagency)
-Works(John1,Aidagency1)
 Diagnosis(John,Fever)
 HasTraveled(John,Timbuktu)
-HasTraveled(John1,Timbuktu)
